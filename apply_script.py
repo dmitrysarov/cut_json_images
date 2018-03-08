@@ -23,7 +23,7 @@ def main(path, folder):
     print('Got {} images'.format(data_len))
     for i, example in enumerate(data):
         image = io.imread(example['source'])
-        hash_name = hashlib.md5(example['source']).hexdigest()
+        hash_name = hashlib.md5(example['source'].encode('utf-8')).hexdigest()
         for j, obj in enumerate(example['objects']):
             print('Processing image {} object {}. {}%'.format(i+1, j+1,
                 int(100*(float(i)/data_len))))
