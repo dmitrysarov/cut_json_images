@@ -4,7 +4,6 @@ import click
 import os
 import hashlib
 
-
 @click.command()
 @click.option('--path', type = click.STRING, required=True, 
         help = 'path to json file on disk')
@@ -25,8 +24,9 @@ def main(path, folder):
         image = io.imread(example['source'])
         hash_name = hashlib.md5(example['source'].encode('utf-8')).hexdigest()
         for j, obj in enumerate(example['objects']):
-            print('Processing image {} object {}. {}%'.format(i+1, j+1,
-                int(100*(float(i)/data_len))))
+            #print('Processing image {} object {}. {}%'.format(i+1, j+1,
+            #    int(100*(float(i)/data_len))))
+            print(str(int(100*(float(i)/data_len))).zfill(2), '%', end='\r')
             file_name = '{}/{}_{}_{}.jpg'.format(folder, j, i, hash_name)
             if os.path.isfile(file_name):
                 print('File {} already exist, skipping'.format(file_name))
@@ -35,8 +35,12 @@ def main(path, folder):
                     for p in obj['polygon']['vertexes']]
             x_min, y_min = map(min, list(zip(*points)))
             x_max, y_max = map(max, list(zip(*points)))
-            cut_image = image[y_min:y_max,x_min:x_max]
-            io.imsave(file_name, cut_image)
+            if y_max > y_min and x_max > x_min and y_max >= 0 and y_min >= 0 and x_max >= 0 and x_min >= 0:
+                cut_image = image[y_min:y_max,x_min:x_max]
+                io.imsave(file_name, cut_image)
+            else:
+                print('skip image {}, number {}, wrong vertexes'.format(example['source'], str(i)))
+                print('x_min', x_min, 'y_min', y_min, 'x_max', x_max, 'y_max', y_max)
     print('Processing done')
     return 0
 if __name__=='__main__':
